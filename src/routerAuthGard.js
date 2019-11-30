@@ -6,13 +6,12 @@ export default (to, from, next) => {
         if (user)
             next()
         else {
-            Vue.prototype.$currentUser = null
+            // this.$currentUser = null
             if (to.fullPath === '/task-management' || to.fullPath === '/')
                 next('/connect')
             next()
         }
     })
 }
-Vue.prototype.$fbAuth = firebase.auth
-Vue.prototype.$fbDb = firebase.firestore
+
 

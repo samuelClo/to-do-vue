@@ -23,8 +23,9 @@ firebase.initializeApp(firebaseConfig);
 
 Vue.config.productionTip = false
 
-// Vue.prototype.$fbAuth = firebase.auth
+Vue.prototype.$fbAuth = firebase.auth
 Vue.prototype.$fbDb = firebase.firestore
+Vue.prototype.$currentUser = firebase.auth().currentUser
 
 
 new Vue({

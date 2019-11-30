@@ -9,14 +9,20 @@
         <input
             placeholder="new task"
             type="text"
-            class="addTask"
+            class="addTask  mr-2"
             v-on:keyup.enter="createArticle(valueInput)"
             v-model="valueInput"
         >
-        <input v-on:click="createArticle(valueInput)" type="submit">
+        <button
+                class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded outline-none"
+                v-on:click="createArticle(valueInput)"
+        >
+          Submit
+        </button>
+        <input placeholder="Type to search" type="text" v-model="searchContent">
         <div id="containAlltask">
           <ul>
-            <li v-for="(content, index) in tasks">
+            <li v-for="(content, index) in filteredTas">
               <div>
                 <div
                     class="checkbox"
@@ -59,9 +65,20 @@
         data() {
             return {
                 valueInput: null,
+                searchContent: null,
                 isConnected: false,
                 tasks: []
             }
+        },
+        computed: {
+          filteredTas(){
+            if (this.searchContent != null){
+              return this.tasks.filter(el => el.content.toLowerCase().includes(this.searchContent.toLowerCase()))
+            }
+            else{
+               return this.tasks
+            }
+          }
         },
         watch: {
             tasks: {
@@ -103,7 +120,6 @@
                 this.tasks[index].isEditabled = !this.tasks[index].isEditabled
             },
             getDataFromDb() {
-                console.log(this.$fbAuth())
                 if (!this.$fbAuth().currentUser)
                     return null
 
@@ -124,7 +140,8 @@
                     watchExecuting = true
                     return
                 }
-                const docRef = this.$fbDb().collection("tasks").doc(this.$currentUser.uid);
+                // console.log(this.$fbAuth())
+                const docRef = this.$fbDb().collection("tasks").doc(this.$fbAuth().currentUser.uid);
 
                 docRef.set({...this.tasks})
                     .then(function () {
