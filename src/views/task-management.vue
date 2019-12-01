@@ -6,21 +6,31 @@
       </div>
       <h1>to do list</h1>
       <div v-if="isConnected">
-        <input
-            placeholder="new task"
-            type="text"
-            class="addTask  mr-2"
-            v-on:keyup.enter="createArticle(valueInput)"
-            v-model="valueInput"
-        >
-        <button
-                class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded outline-none"
-                v-on:click="createArticle(valueInput)"
-        >
-          Submit
-        </button>
-        <input placeholder="Type to search" type="text" v-model="searchContent">
-        <div id="containAlltask">
+        <div>
+          <input
+                  placeholder="new task"
+                  type="text"
+                  class="addTask  mr-2"
+                  v-on:keyup.enter="createArticle(valueInput)"
+                  v-model="valueInput"
+          >
+          <button
+                  class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded outline-none"
+                  v-on:click="createArticle(valueInput)"
+          >
+            Submit
+          </button>
+        </div>
+
+
+        <input placeholder="filter" class="w-full addTask" type="text" v-model="searchContent">
+        <div id="containAlltask" class="relative">
+          <i v-on:click="renderTaskOption" class="fas fa-ellipsis-v text-blue-500"></i>
+          <div v-bind:class="{ displayFlex: openEditChoice }" id="taskOptionPanel">
+            <span v-on:click="selectAll(true)">Tous cocher</span>
+            <span v-on:click="selectAll(false)">Tous decocher</span>
+            <span v-on:click="deleteAll">Tous supprimer</span>
+          </div>
           <ul>
             <li v-for="(content, index) in filteredTas">
               <div>
@@ -67,6 +77,7 @@
                 valueInput: null,
                 searchContent: null,
                 isConnected: false,
+                openEditChoice: false,
                 tasks: []
             }
         },
@@ -89,6 +100,15 @@
             }
         },
         methods: {
+            selectAll(type) {
+              this.tasks.forEach( el => el.done = type)
+            },
+            deleteAll() {
+              this.tasks = []
+            },
+            renderTaskOption() {
+              this.openEditChoice = !this.openEditChoice
+            },
             createArticle(value) {
                 if (!value || !value.trim())
                     return
@@ -161,6 +181,26 @@
 </script>
 <style scoped lang="scss">
   $borderInput : 1px;
+
+  .displayFlex {
+    display: flex !important;
+  }
+  #taskOptionPanel {
+    display: none;
+    position: absolute;
+    top: 0;
+    right: -90px;
+    border: #888888 1px solid;
+    border-radius: 5px;
+    padding: 3px 6px;
+  }
+
+  .fa-ellipsis-v {
+    position: absolute;
+    top: 0;
+    font-size: 24px;
+    right: -20px;
+  }
 
   .checkbox {
     height: 20px;
