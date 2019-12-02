@@ -4,19 +4,20 @@
       <div v-on:click="disconnect" class="disconnect">
         <span>Se déconnecter</span>
       </div>
-      <h1>to do list</h1>
+      <h1 id="title">to do list</h1>
+<!--      <button v-tooltip="You have new messages">-->
       <div v-if="isConnected">
-        <div>
+        <div id="addTaskContain">
           <input
-                  placeholder="new task"
-                  type="text"
-                  class="addTask  mr-2"
-                  v-on:keyup.enter="createArticle(valueInput)"
-                  v-model="valueInput"
+            placeholder="new task"
+            type="text"
+            class="addTask  mr-2"
+            v-on:keyup.enter="createArticle(valueInput)"
+            v-model="valueInput"
           >
           <button
-                  class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded outline-none"
-                  v-on:click="createArticle(valueInput)"
+            class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded outline-none"
+            v-on:click="createArticle(valueInput)"
           >
             Submit
           </button>
@@ -25,36 +26,49 @@
 
         <input placeholder="filter" class="w-full addTask" type="text" v-model="searchContent">
         <div id="containAlltask" class="relative">
-          <i v-on:click="renderTaskOption" class="fas fa-ellipsis-v text-blue-500"></i>
-          <div v-bind:class="{ displayFlex: openEditChoice }" id="taskOptionPanel">
-            <span v-on:click="selectAll(true)">Tous cocher</span>
-            <span v-on:click="selectAll(false)">Tous decocher</span>
-            <span v-on:click="deleteAll">Tous supprimer</span>
+<!--          <i v-on:click="renderTaskOption" class="fas fa-ellipsis-v text-blue-500"></i>-->
+          <div id="taskOptionPanel">
+            <i
+              v-on:click="selectAll(true)"
+              class="fas fa-check-double"
+            ></i>
+            <img  v-on:click="selectAll(false)" src="https://img.icons8.com/metro/26/000000/uncheck-all.png">
+            <i
+              v-on:click="deleteAll"
+              class="far fa-trash-alt"
+            />
           </div>
           <ul>
             <li v-for="(content, index) in filteredTas">
               <div>
                 <div
-                    class="checkbox"
-                    v-bind:class="{ checkboxFill: content.done }"
-                    v-on:click="doneArticle(index)"
+                  class="checkbox"
+                  v-bind:class="{ checkboxFill: content.done }"
+                  v-on:click="doneArticle(index)"
                 ></div>
               </div>
 
-              <span v-bind:class="{ lineThrough: content.done }" v-on:dblclick="editArticle(index)"
-                    v-if="!content.isEditabled">
-              {{content.content }}
-            </span>
-              <input
-                  v-on:keyup.escape="replacePrevText(index)"
-                  v-on:keyup.enter="editArticle(index)"
-                  v-model="content.content"
-                  class="inputModify"
-                  autofocus
-                  v-else
-                  type="text"
+              <span
+                v-bind:class="{ lineThrough: content.done }"
+                v-on:dblclick="editArticle(index)"
+                v-if="!content.isEditabled"
               >
-              <i v-if="!content.isEditabled" v-on:click="deleteArticle(index, $event)" class="far fa-trash-alt"></i>
+                {{content.content }}
+              </span>
+              <input
+                v-on:keyup.escape="replacePrevText(index)"
+                v-on:keyup.enter="editArticle(index)"
+                v-model="content.content"
+                class="inputModify"
+                autofocus
+                v-else
+                type="text"
+              >
+              <i
+                v-if="!content.isEditabled"
+                v-on:click="deleteArticle(index, $event)"
+                class="far fa-trash-alt"
+              />
               <i v-else v-on:click="editArticle(index)" class="fas fa-edit"></i>
             </li>
           </ul>
@@ -77,19 +91,16 @@
                 valueInput: null,
                 searchContent: null,
                 isConnected: false,
-                openEditChoice: false,
                 tasks: []
             }
         },
         computed: {
-          filteredTas(){
-            if (this.searchContent != null){
-              return this.tasks.filter(el => el.content.toLowerCase().includes(this.searchContent.toLowerCase()))
+            filteredTas() {
+                if (this.searchContent != null)
+                    return this.tasks.filter(el => el.content.toLowerCase().includes(this.searchContent.toLowerCase()))
+                else
+                    return this.tasks
             }
-            else{
-               return this.tasks
-            }
-          }
         },
         watch: {
             tasks: {
@@ -101,13 +112,10 @@
         },
         methods: {
             selectAll(type) {
-              this.tasks.forEach( el => el.done = type)
+                this.tasks.forEach(el => el.done = type)
             },
             deleteAll() {
-              this.tasks = []
-            },
-            renderTaskOption() {
-              this.openEditChoice = !this.openEditChoice
+                this.tasks = []
             },
             createArticle(value) {
                 if (!value || !value.trim())
@@ -133,6 +141,7 @@
                     this.tasks[index].beforeEditabled = this.tasks[index].content
                 else if (!this.tasks[index].content || !this.tasks[index].content.trim())
                     this.tasks[index].content = this.tasks[index].beforeEditabled
+
                 this.tasks[index].isEditabled = !this.tasks[index].isEditabled
             },
             replacePrevText(index) {
@@ -156,12 +165,12 @@
                     });
             },
             pushDataOnDb() {
+                const docRef = this.$fbDb().collection("tasks").doc(this.$fbAuth().currentUser.uid);
+
                 if (!watchExecuting) {
                     watchExecuting = true
                     return
                 }
-                // console.log(this.$fbAuth())
-                const docRef = this.$fbDb().collection("tasks").doc(this.$fbAuth().currentUser.uid);
 
                 docRef.set({...this.tasks})
                     .then(function () {
@@ -177,28 +186,59 @@
             }
         },
     }
+    // Initialize
+    var Tooltips = document.getElementsByClassName('TooltipTrigger');
 
+    // Track all tooltips trigger
+    for (var i = 0; i < Tooltips.length; i++) {
+
+        // Event Handler
+        Tooltips[i].addEventListener("mouseenter", function(ev) {
+            ev.preventDefault();
+            this.style.position = "relative";
+            this.innerHTML = this.innerHTML + "<div class='Tooltips'><p class='" + this.getAttribute("data-position") + "'>" + this.getAttribute("data-tooltips") + "</p></div>";
+        });
+        Tooltips[i].addEventListener("mouseleave", function(ev) {
+            ev.preventDefault();
+            this.removeAttribute("style");
+            this.innerHTML = this.innerHTML.replace(/<div[^]*?<\/div>/, '');;
+        });
+
+    }
 </script>
 <style scoped lang="scss">
-  $borderInput : 1px;
+  $borderInput: 1px;
+  $iconSize: 20px;
 
-  .displayFlex {
-    display: flex !important;
+  @mixin icon-size {
+    height: $iconSize;
+    width: $iconSize;
+    font-size: $iconSize;
   }
+
   #taskOptionPanel {
-    display: none;
-    position: absolute;
-    top: 0;
-    right: -90px;
-    border: #888888 1px solid;
-    border-radius: 5px;
-    padding: 3px 6px;
+    display: flex;
+    padding: 3px 0;
+    justify-content: space-between;
+    margin-top: 20px;
+
+    * {
+      cursor: pointer;
+      @include icon-size;
+    }
+    .fa-check-double {
+     color: #4e82bd;
+      &:hover &::after {
+        content: 'ehhehe';
+        color: red;
+      }
+    }
   }
 
   .fa-ellipsis-v {
     position: absolute;
     top: 0;
-    font-size: 24px;
+    @include icon-size;
     right: -20px;
   }
 
@@ -207,7 +247,7 @@
     width: 20px;
     border-radius: 50%;
     padding: 5px;
-    border: 1px solid black;
+    border: 1px solid #4e82bd;
     background-clip: content-box;
   }
 
@@ -216,7 +256,7 @@
   }
 
   .checkboxFill {
-    background-color: black;
+    background-color: #4e82bd;
   }
 
   .connectWithGoogle {
@@ -263,7 +303,8 @@
     border: unset;
     border-bottom: $borderInput solid lightslategrey;
   }
-  .addTask{
+
+  .addTask {
     padding: 3px 5px;
   }
 
@@ -277,7 +318,7 @@
     cursor: pointer;
   }
 
-  .disconnect{
+  .disconnect {
     color: white;
     position: absolute;
     top: 20px;
@@ -301,6 +342,23 @@
 
   .fa-trash-alt {
     color: #ff6461;
+  }
+  @media screen and (max-width: 400px) {
+    #title {
+      margin-top: 3rem;
+      margin-bottom: 1rem;
+    }
+    .disconnect {
+      top: 5px;
+      right: 5px;
+    }
+    #addTaskContain {
+      display: flex;
+      flex-direction: column;
+      button {
+        margin: 10px 0 15px 0;
+      }
+    }
   }
 </style>
 

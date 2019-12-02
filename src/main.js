@@ -9,6 +9,9 @@ import "firebase/analytics";
 import "firebase/auth";
 import "firebase/firestore";
 
+import VTooltip from 'v-tooltip'
+Vue.use(VTooltip)
+
 const firebaseConfig = {
     apiKey: "AIzaSyBxlLf1WbmM-RPEXvnsmcZJodFqrnp6uC0",
     authDomain: "todo-heracles.firebaseapp.com",
